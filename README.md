@@ -8,7 +8,7 @@ The goal of this project was to improve my SQL skills by analyzing a large datas
 
 ## Entity Relationship Diagram (ERD)
 
-![ERD](https://github.com/najirh/Apple-Retail-Sales-SQL-Project---Analyzing-Millions-of-Sales-Rows/blob/main/erd.png)
+![ERD](https://github.com/Vinod-Kontham-56/Apple-Retail-Sales-Analysis-/blob/main/erd.png)
 
 
 ### What’s Included:
