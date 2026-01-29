@@ -88,9 +88,37 @@ The project is split into three tiers of questions to test SQL skills of increas
 
 16. Determine the percentage chance of receiving warranty claims after each purchase for each country.
 17. Analyze the year-by-year growth ratio for each store.
-18. Calculate the correlation between product price and warranty claims for products sold in the last five years, segmented by price range.
-19. Identify the store with the highest percentage of "Paid Repaired" claims relative to total claims filed.
-20. Write a query to calculate the monthly running total of sales for each store over the past four years and compare trends during this period.
+```sqlwith Year_by_sale as 
+(
+select 
+		s.store_id,
+		st.store_name,
+		year(sale_date) as years,
+		sum(quantity*price)as yearly_sale
+from sales s
+join products p on p.product_id = s.product_id
+join stores st on st.store_id = s.store_id
+group by 1, 3
+order by 1,3 ) , -- sales was grouped by store_id and year and saved un year_by_sale table
+main as 
+(
+select 
+	store_name,
+    years ,
+    yearly_sale as current_year,
+	lag(yearly_sale) over (partition by store_name order by years)as  previous_year
+from Year_by_sale
+)   -- previous year sales was calucated by using lag() window function
+ select 
+	 * ,
+     round(
+		(current_year - previous_year)/previous_year *100 ,3) as ratio
+from main
+where previous_year is not Null;
+```
+19. Calculate the correlation between product price and warranty claims for products sold in the last five years, segmented by price range.
+20. Identify the store with the highest percentage of "Paid Repaired" claims relative to total claims filed.
+21. Write a query to calculate the monthly running total of sales for each store over the past four years and compare trends during this period.
 
 ### Bonus Question
 
