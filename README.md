@@ -117,14 +117,94 @@ from Year_by_sale
 from main
 where previous_year is not Null;
 ```
-19. Calculate the correlation between product price and warranty claims for products sold in the last five years, segmented by price range.
-20. Calculate the correlation between product price and warranty claims for products sold in the last five years, segmented by price range.
-21. Identify the store with the highest percentage of "Paid Repaired" claims relative to total claims filed.
-22. Write a query to calculate the monthly running total of sales for each store over the past four years and compare trends during this period.
+18. Calculate the correlation between product price and warranty claims for products sold in the last five years, segmented by price range.
+```sql
+select 
+    case
+		when p.price < 500 then 'Less Expensive'
+        when p.price Between 500 and 1200 then 'Medium expensive'
+       else 'Expensive'
+	end as price_segment,
+    count(w.claim_id) as total_claims
+from products p 
+join sales s on s.product_id = p.product_id
+right join warranty w on w.sale_id = s.sale_id
+where claim_date >= current_date() - interval 5 year
+group by 1;
+```
+19. Identify the store with the highest percentage of "completed" claims relative to total claims filed.
+```sql
+with total as
+(
+select 
+	s.store_id,
+    count(w.claim_id) as total_claims
+from warranty w
+left join sales s on s.sale_id = w.sale_id
+group by 1
+), -- createing table with number of claims fro each store
+completed as
+(
+select 
+	s.store_id,
+    count(w.claim_id) as total_completed_claims
+from warranty w
+left join sales s on s.sale_id = w.sale_id
+where repair_status = 'completed'
+group by 1
+) -- creating another table with count of completed claims for each store
+select 
+	t.store_id,
+    st.store_name,
+    total_claims,
+    total_completed_claims,
+    round((total_completed_claims/total_claims)*100,2) as Percentage_of_completed_claims
+from total t
+join completed c on c.store_id = t.store_id
+join stores st on st.store_id = t.store_id
+order by Percentage_of_completed_claims desc;
+```
+20. Write a query to calculate the monthly running total of sales for each store over the past four years and compare trends during this period.
+```sql
+with monthly_revenue as
+(
+select 
+	s.store_id,
+    extract(year from sale_date) as Years,
+    extract(Month from sale_date)as Months,
+    sum(s.quantity * p.price) as sale
+from sales s
+join products p on p.product_id = s.product_id
+group by 1,2,3
+order by 1,2,3
+)
 
+select 
+	store_id,
+    Years,
+    Months,
+    sale,
+    sum(sale)over(partition by store_id order by years,months) as running_total
+from monthly_revenue;
+```
 ### Bonus Question
 
 - Analyze product sales trends over time, segmented into key periods: from launch to 6 months, 6-12 months, 12-18 months, and beyond 18 months.
+```sql
+select 
+	p.product_name,
+    case
+		when s.sale_date between p.launch_date and p.launch_date + interval 6 month then '0-6 months'
+        when s.sale_date between p.launch_date + interval 6 month and p.launch_date + interval 12 month then '06-12 months'
+		when s.sale_date between p.launch_date + interval 12 month and p.launch_date + interval 18 month then '12-18 months'
+        when s.sale_date between p.launch_date + interval 18 month and p.launch_date + interval 26 month then '18-26 months'
+        Else '26+ months'
+	End as Month_segregation,
+    sum(s.quantity) as No_of_units
+from sales s 
+join products p on p.product_id = s.product_id
+group by 1,2
+```
 
 ## Project Focus
 
