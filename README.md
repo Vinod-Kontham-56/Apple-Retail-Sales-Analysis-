@@ -1,5 +1,4 @@
 # Apple-Store-Sales-Warranty-Analytics
-Get the guided project/datasets here**: [Get the Project Datasets](https://topmate.io/zero_analyst/1237072)
 
 ## Project Overview
 
