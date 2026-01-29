@@ -1,4 +1,4 @@
-# Apple-Store-Sales-Warranty-Analytics
+# Apple Retail Sales Analysis 
 
 ## Project Overview
 
